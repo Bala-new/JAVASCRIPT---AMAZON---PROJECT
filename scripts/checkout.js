@@ -1,4 +1,4 @@
-import { cart,removeFromCart } from '../data/cart.js';
+import { cart,removeFromCart,updateDeliveryOption } from '../data/cart.js';
 import { products } from '../data/products.js';
 import { formatCurrency } from './utils/money.js';
 import { hello } from 'https://unpkg.com/supersimpledev@1.0.1/hello.esm.js';
@@ -18,9 +18,9 @@ cart.forEach((cartItem)=>{
 
     let matchingProduct;
 
-    products.forEach((products)=>{
-        if(products.id===productId){
-            matchingProduct=products;
+    products.forEach((product)=>{
+        if(product.id===productId){
+            matchingProduct=product;
         }
     });
 
@@ -89,25 +89,27 @@ cart.forEach((cartItem)=>{
 
 function deliveryOptionsHTML(matchingProduct,cartItem){
   let html='';
-  deliveryOptions.forEach((deliveryOptions)=>{
+  deliveryOptions.forEach((deliveryOption)=>{
     const today=dayjs();
     const deliveryDate=today.add(
-      deliveryOptions.deliveryDays,
+      deliveryOption.deliveryDays,
       'days'
     );
     const dateString=deliveryDate.format(
       'dddd, MMMM D' 
     );
-    const priceString=deliveryOptions.priceCents
+    const priceString=deliveryOption.priceCents
     ===0 
     ? 'FREE'
-    : `$${formatCurrency(deliveryOptions.priceCents)} -`;
+    : `$${formatCurrency(deliveryOption.priceCents)} -`;
 
-    const isChecked = deliveryOptions.id ===
+    const isChecked = deliveryOption.id ===
     cartItem.deliveryOptionsId;
 
     html+=`
-        <div class="delivery-option">
+        <div class="delivery-option js-delivery-option"
+          data-product-id="${matchingProduct.id}"
+          data-delivery-option-id="${deliveryOption.id}">
           <input type="radio"
             ${isChecked ? 'checked': ''}
             class="delivery-option-input"
@@ -139,3 +141,14 @@ document.querySelectorAll('.js-delete-link')
       container.remove();
     });
   });
+
+
+  document.querySelectorAll('.js-delivery-option')
+   .forEach((element)=>{
+      element.addEventListener('click',()=>{
+        //const productId=element.dataset.productId;
+        //const deliveryOptionsId=element.dataset.deliveryOptionsId;
+        const{productId,deliveryOptionId}=element.dataset;
+        updateDeliveryOption(productId,deliveryOptionId);
+      });
+   });
