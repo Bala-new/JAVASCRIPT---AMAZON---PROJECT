@@ -84,6 +84,3 @@ class Cart{
   console.log(cart);
   console.log(buisnessCart);
   console.log(buisnessCart instanceof Cart);
-  
-  
-  
